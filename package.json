@@ -1,0 +1,35 @@
+{
+  "name": "panto-transformer-css-sprites",
+  "version": "0.1.0",
+  "description": "CSS Sprites transformer for panto",
+  "main": "index.js",
+  "scripts": {
+    "test": "eslint index.js && mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pantojs/panto-transformer-css-sprites.git"
+  },
+  "keywords": [
+    "panto",
+    "css-sprites",
+    "transformer"
+  ],
+  "engines": {
+    "node": ">=6.0.0"
+  },
+  "author": "yanni4night@gmail.com",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/pantojs/panto-transformer-css-sprites/issues"
+  },
+  "homepage": "https://github.com/pantojs/panto-transformer-css-sprites",
+  "dependencies": {
+    "css": "^2.2.1",
+    "panto-transformer": "^0.1.4",
+    "spritesmith": "^3.1.0"
+  },
+  "devDependencies": {
+    "panto": "0.0.10"
+  }
+}

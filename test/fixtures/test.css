@@ -1,0 +1,22 @@
+/**
+  * Copyright (C) 2016 pantojs.xyz
+  * test.css
+  *
+  * changelog
+  * 2016-06-30[17:15:14]:revised
+  *
+  * @author yanni4night@gmail.com
+  * @version 0.1.0
+  * @since 0.1.0
+  */
+.google {
+    background: url('./google-128x128.png') no-repeat;
+}
+
+.npm {
+    background: url("./npm-57x57.png") no-repeat;
+}
+
+.social {
+    background: url(./twitter-192x192.png) no-repeat, url(./facebook-120x120.png) no-repeat;
+}
