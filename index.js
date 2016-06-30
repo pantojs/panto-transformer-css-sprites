@@ -15,6 +15,7 @@
 const Transformer = require('panto-transformer');
 const spritesmith = require('spritesmith');
 const path = require('path');
+const url = require('url');
 const css = require('css');
 
 class CssSpritesTransformer extends Transformer {
@@ -25,7 +26,7 @@ class CssSpritesTransformer extends Transformer {
             filename
         } = file;
 
-        const urlReg = /\burl\(\s*(['"])?(.+?)\1?\s*\)/g;
+        const urlReg = '\\burl\\(\\s*([\'"])?(.+?)\\1?\\s*\\)';
 
         const absResPath = (res) => {
             return panto.file.locate(path.join(path.dirname(
@@ -43,11 +44,16 @@ class CssSpritesTransformer extends Transformer {
             ast.stylesheet.rules.forEach(rule => {
                 if ('rule' === rule.type) {
                     rule.declarations.forEach(declaration => {
-                        if (/^background/i.test(declaration.property)) {
+                        if (/^background(-image)?/i.test(declaration.property)) {
                             let result;
-                            while ((result = urlReg.exec(declaration.value))) {
-                                imageUrls.push(path.join(path.dirname(
-                                    filename), result[2]));
+                            const ur = new RegExp(urlReg, 'g');
+                            while ((result = ur.exec(declaration.value))) {
+                                let originUrl = result[2];
+                                let parsedUrl = url.parse(originUrl, true);
+                                if ('__sprite' in parsedUrl.query) {
+                                    imageUrls.push(path.join(path.dirname(
+                                        filename), parsedUrl.pathname));
+                                }
                             }
                         }
                     });
@@ -70,7 +76,6 @@ class CssSpritesTransformer extends Transformer {
                     }
                     resolve({
                         result,
-                        imageUrls,
                         ast
                     });
                     // result.image; // Buffer representation of image 
@@ -80,10 +85,10 @@ class CssSpritesTransformer extends Transformer {
             });
         }).then(({
             result,
-            imageUrls,
             ast
         }) => {
             const spriteUrl = path.dirname(filename) + `/sprite-${Date.now()}.png`;
+            const ur = new RegExp(urlReg);
             // Merge sprites to css
             ast.stylesheet.rules.forEach(rule => {
                 if ('rule' === rule.type) {
@@ -92,11 +97,15 @@ class CssSpritesTransformer extends Transformer {
                             // Support CSS3 multiple backgrounds
                             let covers = (declaration.value || '').split(',');
                             declaration.value = covers.map(cover => {
-                                const matches = urlReg.exec(cover);
+                                const matches = cover.match(ur);
 
-                                if (matches && matches[2] && result.coordinates[
-                                        absResPath(matches[2])]) {
-                                    const cood = result.coordinates[absResPath(matches[2])];
+                                if (matches && matches[2]) {
+                                    let parsedUrl = url.parse(matches[2], true);
+                                    let cood;
+                                    if (!(cood = result.coordinates[absResPath(parsedUrl.pathname)])) {
+                                        return cover;
+                                    }
+
                                     if ('background' === declaration.property) {
                                         return `url(${spriteUrl}) ${cood.x}px ${cood.y}px no-repeat`;
                                     } else {
