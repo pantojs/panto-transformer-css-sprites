@@ -6,15 +6,9 @@ CSS Sprites transformer for panto.
 ```js
 panto.loadTransformer('css-sprites');
 
-panto.pick('**/*').pipe(panto.cssSprites({
-    pattern: [/.js$/, filename => {
-        return filename[0] === 'a';
-    }, 'src/**/*']
-})).pipe(panto.read()).end();
+panto.pick('**/*.less').pipe(panto.read()).pipe(panto.cssSprites()).end();
 ```
 
-## options
- - pattern: array|regexp|string|function
 
 [npm-url]: https://npmjs.org/package/panto-transformer-css-sprites
 [downloads-image]: http://img.shields.io/npm/dm/panto-transformer-css-sprites.svg

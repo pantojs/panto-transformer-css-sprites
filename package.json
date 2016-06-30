@@ -1,6 +1,6 @@
 {
   "name": "panto-transformer-css-sprites",
-  "version": "0.1.0",
+  "version": "0.0.1",
   "description": "CSS Sprites transformer for panto",
   "main": "index.js",
   "scripts": {

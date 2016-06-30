@@ -93,7 +93,7 @@ class CssSpritesTransformer extends Transformer {
             rulesHaveUrl,
             ast
         }) => {
-            const spriteUrl = path.dirname(filename) + `/sprite-${Date.now()}.png`;
+            const spriteUrl = path.dirname(filename) + `/img/sprite-${Date.now()}.png`;
             const ur = new RegExp(urlReg);
             // Merge sprites to css
             rulesHaveUrl.forEach(rule => {
@@ -125,12 +125,18 @@ class CssSpritesTransformer extends Transformer {
 
             });
 
-            return [panto.util.extend(file, {
-                content: css.stringify(ast)
-            }), {
-                filename: spriteUrl,
-                content: result.image
-            }];
+            if (rulesHaveUrl.length) {
+                return [panto.util.extend(file, {
+                    content: css.stringify(ast)
+                }), {
+                    filename: spriteUrl,
+                    content: result.image
+                }];
+            } else {
+                return file;
+            }
+
+
         });
     }
 }
