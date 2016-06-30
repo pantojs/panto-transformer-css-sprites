@@ -19,20 +19,24 @@ describe('panto-transformer-css-sprites', () => {
     describe('#transform', () => {
         it('', done => {
             panto.setOptions({
-                cwd: __dirname
+                cwd: __dirname + '/fixtures'
             })
 
             const cst = new CssSpritesTransformer();
             cst.transform({
                 content: fs.readFileSync(__dirname + '/fixtures/test.css', 'utf8'),
-                filename: 'fixtures/test.css'
+                filename: 'test.css'
+            }).then(files => {
+                return files.map(file => {
+                    return panto.file.write(file.filename, file.content)
+                });
             }).then(()=>{
                 done();
-            }).catch(e=>{
+            }).catch(e => {
                 console.error(e)
                 done();
             })
-            
+
         });
 
     });

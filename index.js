@@ -40,9 +40,10 @@ class CssSpritesTransformer extends Transformer {
             resolve(ast);
         }).then(ast => {
             const imageUrls = [];
-
+            const rulesHaveUrl = [];
             ast.stylesheet.rules.forEach(rule => {
                 if ('rule' === rule.type) {
+                    let findUrlInRule = false;
                     rule.declarations.forEach(declaration => {
                         if (/^background(-image)?/i.test(declaration.property)) {
                             let result;
@@ -51,20 +52,26 @@ class CssSpritesTransformer extends Transformer {
                                 let originUrl = result[2];
                                 let parsedUrl = url.parse(originUrl, true);
                                 if ('__sprite' in parsedUrl.query) {
+                                    findUrlInRule = true;
                                     imageUrls.push(path.join(path.dirname(
                                         filename), parsedUrl.pathname));
                                 }
                             }
                         }
                     });
+                    if (findUrlInRule) {
+                        rulesHaveUrl.push(rule);
+                    }
                 }
             });
             return {
                 ast,
+                rulesHaveUrl,
                 imageUrls
             };
         }).then(({
             ast,
+            rulesHaveUrl,
             imageUrls
         }) => {
             return new Promise((resolve, reject) => {
@@ -76,52 +83,54 @@ class CssSpritesTransformer extends Transformer {
                     }
                     resolve({
                         result,
+                        rulesHaveUrl,
                         ast
                     });
-                    // result.image; // Buffer representation of image 
-                    // result.coordinates; // Object mapping filename to {x, y, width, height} of image 
-                    // result.properties; // Object with metadata about spritesheet {width, height} 
                 });
             });
         }).then(({
             result,
+            rulesHaveUrl,
             ast
         }) => {
             const spriteUrl = path.dirname(filename) + `/sprite-${Date.now()}.png`;
             const ur = new RegExp(urlReg);
             // Merge sprites to css
-            ast.stylesheet.rules.forEach(rule => {
-                if ('rule' === rule.type) {
-                    rule.declarations.forEach(declaration => {
-                        if (/^background(\-image)?/i.test(declaration.property)) {
-                            // Support CSS3 multiple backgrounds
-                            let covers = (declaration.value || '').split(',');
-                            declaration.value = covers.map(cover => {
-                                const matches = cover.match(ur);
+            rulesHaveUrl.forEach(rule => {
+                rule.declarations.forEach(declaration => {
+                    if (/^background(\-image)?/i.test(declaration.property)) {
+                        // Support CSS3 multiple backgrounds
+                        let covers = (declaration.value || '').split(',');
+                        declaration.value = covers.map(cover => {
+                            const matches = cover.match(ur);
 
-                                if (matches && matches[2]) {
-                                    let parsedUrl = url.parse(matches[2], true);
-                                    let cood;
-                                    if (!(cood = result.coordinates[absResPath(parsedUrl.pathname)])) {
-                                        return cover;
-                                    }
-
-                                    if ('background' === declaration.property) {
-                                        return `url(${spriteUrl}) ${cood.x}px ${cood.y}px no-repeat`;
-                                    } else {
-                                        return `url(${spriteUrl})`;
-                                    }
-                                } else {
+                            if (matches && matches[2]) {
+                                let parsedUrl = url.parse(matches[2], true);
+                                let cood;
+                                if (!(cood = result.coordinates[absResPath(parsedUrl.pathname)])) {
                                     return cover;
                                 }
-                            }).join(', ');
-                        }
-                    });
-                }
+
+                                if ('background' === declaration.property) {
+                                    return `url(${spriteUrl}) ${cood.x}px ${cood.y}px no-repeat`;
+                                } else {
+                                    return `url(${spriteUrl})`;
+                                }
+                            } else {
+                                return cover;
+                            }
+                        }).join(', ');
+                    }
+                });
+
             });
 
-            console.log(css.stringify(ast));
-
+            return [panto.util.extend(file, {
+                content: css.stringify(ast)
+            }), {
+                filename: spriteUrl,
+                content: result.image
+            }];
         });
     }
 }
