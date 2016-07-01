@@ -96,8 +96,9 @@ class CssSpritesTransformer extends Transformer {
             const spriteUrl = path.dirname(filename) + `/img/sprite-${Date.now()}.png`;
             const ur = new RegExp(urlReg);
             // Merge sprites to css
-            rulesHaveUrl.forEach(rule => {
-                rule.declarations.forEach(declaration => {
+
+            for (let rule of rulesHaveUrl) {
+                for (let declaration of rule.declarations) {
                     if (/^background(\-image)?/i.test(declaration.property)) {
                         // Support CSS3 multiple backgrounds
                         let covers = (declaration.value || '').split(',');
@@ -114,6 +115,24 @@ class CssSpritesTransformer extends Transformer {
                                 if ('background' === declaration.property) {
                                     return `url(${spriteUrl}) ${cood.x}px ${cood.y}px no-repeat`;
                                 } else {
+                                    /*
+                                     * Add background-repeat & background-position if not exist
+                                     */
+                                    const bps = rule.declarations.filter(d => (d.property === 'background-position'));
+                                    // Only fix the first
+                                    if (bps[0]) {
+                                        bps[0].value = `${cood.x}px ${cood.y}px`;
+                                    }else{
+                                        rule.declarations.push({type:'declaration',property:'background-position',value:`${cood.x}px ${cood.y}px`});
+                                    }
+                                    
+                                    const brs=rule.declarations.filter(d=>(d.property==='background-repeat'));
+                                    // Only fix the first
+                                    if (brs[0]) {
+                                        brs[0].value = `no-repeat`;
+                                    }else{
+                                        rule.declarations.push({type:'declaration',property:'background-repeat',value:`no-repeat`});
+                                    }
                                     return `url(${spriteUrl})`;
                                 }
                             } else {
@@ -121,9 +140,9 @@ class CssSpritesTransformer extends Transformer {
                             }
                         }).join(', ');
                     }
-                });
+                };
 
-            });
+            };
 
             if (rulesHaveUrl.length) {
                 return [panto.util.extend(file, {
