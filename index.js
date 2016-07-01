@@ -26,9 +26,19 @@ class CssSpritesTransformer extends Transformer {
             filename
         } = file;
 
+        let {
+            generateSpriteFilename
+        } = this.options;
+
+        if (!panto.util.isFunction(generateSpriteFilename)) {
+            generateSpriteFilename = file => {
+                return `sprite-${path.basename(file.filename)}.png`; 
+            };
+        }
+
         const urlReg = '\\burl\\(\\s*([\'"])?(.+?)\\1?\\s*\\)';
 
-        const absResPath = (res) => {
+        const absResPath = res => {
             return panto.file.locate(path.join(path.dirname(
                 filename), res));
         };
@@ -104,7 +114,7 @@ class CssSpritesTransformer extends Transformer {
             dpr,
             ast
         }) => {
-            const spriteUrl = path.dirname(filename) + `/img/sprite-${Date.now()}.png`;
+            const spriteUrl = generateSpriteFilename.call(file, file);
             const ur = new RegExp(urlReg);
             // Merge sprites to css
 
@@ -138,7 +148,7 @@ class CssSpritesTransformer extends Transformer {
                                 }
 
                                 if ('background' === declaration.property) {
-                                    return `url(${spriteUrl}) ${cood.x/dpr}px ${cood.y/dpr}px no-repeat`;
+                                    return `url(${spriteUrl}) -${cood.x/dpr}px -${cood.y/dpr}px no-repeat`;
                                 } else {
                                     /*
                                      * Add background-repeat & background-position if not exist
@@ -147,12 +157,12 @@ class CssSpritesTransformer extends Transformer {
                                         'background-position'));
                                     // Only fix the first
                                     if (bps[0]) {
-                                        bps[0].value = `${cood.x/dpr}px ${cood.y/dpr}px`;
+                                        bps[0].value = `-${cood.x/dpr}px -${cood.y/dpr}px`;
                                     } else {
                                         rule.declarations.push({
                                             type: 'declaration',
                                             property: 'background-position',
-                                            value: `${cood.x/dpr}px ${cood.y/dpr}px`
+                                            value: `-${cood.x/dpr}px -${cood.y/dpr}px`
                                         });
                                     }
 

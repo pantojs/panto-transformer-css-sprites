@@ -1,6 +1,6 @@
 {
   "name": "panto-transformer-css-sprites",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "CSS Sprites transformer for panto",
   "main": "index.js",
   "scripts": {
@@ -30,6 +30,7 @@
     "spritesmith": "^3.1.0"
   },
   "devDependencies": {
-    "panto": "0.0.10"
+    "panto": "0.0.10",
+    "rimraf": "^2.5.2"
   }
 }

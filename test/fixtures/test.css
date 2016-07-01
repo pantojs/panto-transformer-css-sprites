@@ -11,12 +11,24 @@
   */
 .google {
     background: url('./google-128x128.png?__sprite&dpr=2') no-repeat;
+    width: 64px;
+    height: 64px;
 }
 
 .npm {
     background-image: url("./npm-57x57.png?__sprite");
+    width: 29px;
+    height: 29px;
 }
 
-.social {
-    background: url(./twitter-192x192.png?__sprite) no-repeat, url(./facebook-120x120.png?__sprite) no-repeat;
+.twitter {
+    background: url(./twitter-192x192.png?__sprite) no-repeat;
+    width: 96px;
+    height: 96px;
+}
+
+.facebook {
+    background:  url(./facebook-120x120.png?__sprite) no-repeat;
+    width: 60px;
+    height: 60px;
 }

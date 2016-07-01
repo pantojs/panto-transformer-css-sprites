@@ -12,8 +12,14 @@
 'use strict';
 const assert = require('assert');
 const fs = require('fs');
+const path = require('path');
+const rimraf = require('rimraf');
 const panto = require('panto');
 const CssSpritesTransformer = require('../');
+
+rimraf.sync(__dirname + '/fixtures/output', {
+    force: true
+});
 
 describe('panto-transformer-css-sprites', () => {
     describe('#transform', () => {
@@ -23,20 +29,17 @@ describe('panto-transformer-css-sprites', () => {
             })
 
             const cst = new CssSpritesTransformer();
+
             cst.transform({
                 content: fs.readFileSync(__dirname + '/fixtures/test.css', 'utf8'),
                 filename: 'test.css'
             }).then(files => {
                 return files.map(file => {
-                    return panto.file.write(file.filename, file.content)
+                    return panto.file.write(path.basename(file.filename), file.content)
                 });
-            }).then(()=>{
+            }).then(() => {
                 done();
-            }).catch(e => {
-                console.error(e)
-                done();
-            })
-
+            });
         });
 
     });
