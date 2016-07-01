@@ -10,7 +10,7 @@
   * @since 0.1.0
   */
 .google {
-    background: url('./google-128x128.png?__sprite') no-repeat;
+    background: url('./google-128x128.png?__sprite&dpr=2') no-repeat;
 }
 
 .npm {
@@ -18,5 +18,5 @@
 }
 
 .social {
-    background: url(./twitter-192x192.png) no-repeat, url(./facebook-120x120.png?__sprite) no-repeat;
+    background: url(./twitter-192x192.png?__sprite) no-repeat, url(./facebook-120x120.png?__sprite) no-repeat;
 }

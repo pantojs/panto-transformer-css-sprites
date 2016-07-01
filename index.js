@@ -41,6 +41,7 @@ class CssSpritesTransformer extends Transformer {
         }).then(ast => {
             const imageUrls = [];
             const rulesHaveUrl = [];
+            let dpr = 1;
             ast.stylesheet.rules.forEach(rule => {
                 if ('rule' === rule.type) {
                     let findUrlInRule = false;
@@ -56,6 +57,12 @@ class CssSpritesTransformer extends Transformer {
                                     imageUrls.push(path.join(path.dirname(
                                         filename), parsedUrl.pathname));
                                 }
+                                if ('dpr' in parsedUrl.query) {
+                                    let d = parseInt(parsedUrl.query.dpr, 10);
+                                    if (!isNaN(d) && d > 0) {
+                                        dpr = Math.max(dpr, d);
+                                    }
+                                }
                             }
                         }
                     });
@@ -66,11 +73,13 @@ class CssSpritesTransformer extends Transformer {
             });
             return {
                 ast,
+                dpr,
                 rulesHaveUrl,
                 imageUrls
             };
         }).then(({
             ast,
+            dpr,
             rulesHaveUrl,
             imageUrls
         }) => {
@@ -83,6 +92,7 @@ class CssSpritesTransformer extends Transformer {
                     }
                     resolve({
                         result,
+                        dpr,
                         rulesHaveUrl,
                         ast
                     });
@@ -91,6 +101,7 @@ class CssSpritesTransformer extends Transformer {
         }).then(({
             result,
             rulesHaveUrl,
+            dpr,
             ast
         }) => {
             const spriteUrl = path.dirname(filename) + `/img/sprite-${Date.now()}.png`;
@@ -112,37 +123,61 @@ class CssSpritesTransformer extends Transformer {
                                     return cover;
                                 }
 
+                                if (dpr > 1) {
+                                    let bss = rule.declarations.filter(d => (d.property ===
+                                        'background-size'));
+                                    if (bss[0]) {
+                                        bss[0].value = `${result.properties.width/dpr}px auto`;
+                                    } else {
+                                        rule.declarations.push({
+                                            type: 'declaration',
+                                            property: 'background-size',
+                                            value: `${result.properties.width/dpr}px auto`
+                                        });
+                                    }
+                                }
+
                                 if ('background' === declaration.property) {
-                                    return `url(${spriteUrl}) ${cood.x}px ${cood.y}px no-repeat`;
+                                    return `url(${spriteUrl}) ${cood.x/dpr}px ${cood.y/dpr}px no-repeat`;
                                 } else {
                                     /*
                                      * Add background-repeat & background-position if not exist
                                      */
-                                    const bps = rule.declarations.filter(d => (d.property === 'background-position'));
+                                    let bps = rule.declarations.filter(d => (d.property ===
+                                        'background-position'));
                                     // Only fix the first
                                     if (bps[0]) {
-                                        bps[0].value = `${cood.x}px ${cood.y}px`;
-                                    }else{
-                                        rule.declarations.push({type:'declaration',property:'background-position',value:`${cood.x}px ${cood.y}px`});
+                                        bps[0].value = `${cood.x/dpr}px ${cood.y/dpr}px`;
+                                    } else {
+                                        rule.declarations.push({
+                                            type: 'declaration',
+                                            property: 'background-position',
+                                            value: `${cood.x/dpr}px ${cood.y/dpr}px`
+                                        });
                                     }
-                                    
-                                    const brs=rule.declarations.filter(d=>(d.property==='background-repeat'));
+
+                                    let brs = rule.declarations.filter(d => (d.property ===
+                                        'background-repeat'));
                                     // Only fix the first
                                     if (brs[0]) {
                                         brs[0].value = `no-repeat`;
-                                    }else{
-                                        rule.declarations.push({type:'declaration',property:'background-repeat',value:`no-repeat`});
+                                    } else {
+                                        rule.declarations.push({
+                                            type: 'declaration',
+                                            property: 'background-repeat',
+                                            value: `no-repeat`
+                                        });
                                     }
                                     return `url(${spriteUrl})`;
                                 }
+
                             } else {
                                 return cover;
                             }
                         }).join(', ');
                     }
-                };
-
-            };
+                }
+            }
 
             if (rulesHaveUrl.length) {
                 return [panto.util.extend(file, {
