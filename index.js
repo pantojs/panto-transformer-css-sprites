@@ -95,7 +95,7 @@ class CssSpritesTransformer extends Transformer {
         }) => {
             return new Promise((resolve, reject) => {
                 spritesmith.run({
-                    src: imageUrls.map(panto.file.locate)
+                    src: imageUrls.map(url => panto.file.locate(url))
                 }, (err, result) => {
                     if (err) {
                         return reject(err);
