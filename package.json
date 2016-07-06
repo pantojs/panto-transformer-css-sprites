@@ -6,6 +6,7 @@
   "scripts": {
     "test": "eslint index.js && mocha"
   },
+  "pre-commit": "test",
   "repository": {
     "type": "git",
     "url": "https://github.com/pantojs/panto-transformer-css-sprites.git"
@@ -31,6 +32,7 @@
   },
   "devDependencies": {
     "panto": "0.0.12",
+    "pre-commit": "^1.1.3",
     "rimraf": "^2.5.2"
   }
 }

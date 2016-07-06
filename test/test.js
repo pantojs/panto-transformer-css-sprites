@@ -23,7 +23,7 @@ rimraf.sync(__dirname + '/fixtures/output', {
 
 describe('panto-transformer-css-sprites', () => {
     describe('#transform', () => {
-        it('', done => {
+        it('TODO', done => {
             panto.setOptions({
                 cwd: __dirname + '/fixtures'
             })
