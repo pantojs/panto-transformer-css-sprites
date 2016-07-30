@@ -6,9 +6,9 @@ CSS Sprites transformer for panto.
 ```js
 panto.loadTransformer('css-sprites');
 
-panto.pick('**/*.less').pipe(panto.read()).pipe(panto.cssSprites({
+panto.pick('**/*.less').read().cssSprites({
     generateSpriteFilename: file => `sprite-${path.basename(file.filename)}.png`
-})).end();
+});
 ```
 
 ## options
