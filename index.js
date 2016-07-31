@@ -6,8 +6,8 @@
  * 2016-06-30[17:11:56]:revised
  *
  * @author yanni4night@gmail.com
- * @version 0.1.0
- * @since 0.1.0
+ * @version 0.0.4
+ * @since 0.0.1
  */
 
 'use strict';
@@ -30,7 +30,7 @@ class CssSpritesTransformer extends Transformer {
             generateSpriteFilename
         } = this.options;
 
-        if (!panto.util.isFunction(generateSpriteFilename)) {
+        if (!panto._.isFunction(generateSpriteFilename)) {
             generateSpriteFilename = file => {
                 return `sprite-${path.basename(file.filename)}.png`; 
             };
@@ -190,7 +190,7 @@ class CssSpritesTransformer extends Transformer {
             }
 
             if (rulesHaveUrl.length) {
-                return [panto.util.extend(file, {
+                return [panto._.extend(file, {
                     content: css.stringify(ast)
                 }), {
                     filename: spriteUrl,
